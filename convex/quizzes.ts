@@ -14,14 +14,14 @@ export const saveQuizResult = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
-    if (!user) {
+    if (!user || !user._id) {
       throw new Error("Unauthorized");
     }
 
     const score = (args.correctAnswers / args.totalQuestions) * 100;
 
     const resultId = await ctx.db.insert("quizResults", {
-      userId: user._id,
+      userId: user._id as string,
       subject: args.subject,
       topic: args.topic,
       totalQuestions: args.totalQuestions,

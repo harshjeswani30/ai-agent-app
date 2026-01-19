@@ -1,33 +1,144 @@
-## Overview
+# StudyBuddy AI - AI-Powered Study Assistant
 
-This project uses the following tech stack:
-- Vite
-- Typescript
-- React Router v7 (all imports from `react-router` instead of `react-router-dom`)
-- React 19 (for frontend components)
-- Tailwind v4 (for styling)
-- Shadcn UI (for UI components library)
-- Lucide Icons (for icons)
-- Convex (for backend & database)
-- Convex Auth (for authentication)
-- Framer Motion (for animations)
-- Three js (for 3d models)
+> A full-stack generative AI agent application powered by **Pydantic AI** that helps students master any subject with personalized tutoring, adaptive quizzes, and intelligent study planning.
 
-All relevant files live in the 'src' directory.
+## 🎯 Problem Statement
 
-Use pnpm for the package manager.
+Students struggle to:
+- Get instant, personalized explanations for complex topics
+- Generate practice questions tailored to their level
+- Track study progress across multiple subjects
+- Stay motivated with measurable goals
 
-## Setup
+## 💡 Solution
 
-This project is set up already and running on a cloud environment, as well as a convex development in the sandbox.
+**StudyBuddy AI** provides an intelligent study companion that:
+- Offers real-time AI tutoring with contextual understanding
+- Generates adaptive quizzes with detailed explanations
+- Tracks study sessions and progress with analytics
+- Adapts difficulty to beginner, intermediate, or advanced levels
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
+- **React 19** + **TypeScript** (Vite 7.2)
+- **React Router v7** (all imports from `react-router`)
+- **Tailwind CSS v4** (modern oklch colors)
+- **Shadcn UI** (50+ components)
+- **Framer Motion** (animations)
+- **Convex React Client** (real-time data)
+- **Lucide Icons**
+
+### Backend
+- **Pydantic AI v0.0.14** ⭐ (AI agent framework)
+- **FastAPI** (Python API)
+- **OpenRouter** (free AI models)
+- **Convex** (serverless database & auth)
+
+Package Manager: **pnpm**
+
+All relevant files live in the `src` directory.
+
+---
+
+## 🤖 Pydantic AI Agents
+
+This project uses **Pydantic AI** for intelligent agent orchestration.
+
+### Study Agent (`backend/agents/study_agent.py`)
+Expert AI tutor providing explanations and study guidance.
+
+**Tools:**
+- `break_down_concept` - Deconstructs complex topics into parts
+- `generate_examples` - Creates practice problems
+- `suggest_study_techniques` - Recommends learning methods
+- `check_understanding` - Generates comprehension questions
+
+### Quiz Agent (`backend/agents/quiz_agent.py`)
+Generates adaptive quizzes with multiple choice questions.
+
+**Tools:**
+- `create_question` - Formats quiz questions with shuffled options
+- `validate_quiz` - Ensures quality standards
+- `suggest_topics` - Recommends related subjects
+
+---
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js 18+ and pnpm
+- Python 3.10+
+- OpenRouter API key (free at https://openrouter.ai)
+
+### 1. Frontend Setup
+```bash
+# Install dependencies
+pnpm install
+
+# Start Convex development server
+npx convex dev
+
+# Start frontend (in another terminal)
+pnpm dev
+```
+
+Frontend runs on `http://localhost:5173`
+
+### 2. Backend Setup
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Add your OPENROUTER_API_KEY to .env
+
+# Start backend
+python main.py
+```
+
+Backend runs on `http://localhost:8000`
+
+### 3. Get API Keys
+
+#### OpenRouter (Required for AI)
+1. Visit https://openrouter.ai
+2. Sign up (free)
+3. Go to Settings → API Keys
+4. Generate key
+5. Add to `backend/.env`:
+   ```
+   OPENROUTER_API_KEY=your_key_here
+   ```
+
+**Free models available:**
+- `meta-llama/llama-3.2-3b-instruct:free`
+- `microsoft/phi-3-mini-128k-instruct:free`
+- `google/gemma-2-9b-it:free`
+
+---
 
 ## Environment Variables
 
-The project is set up with project specific CONVEX_DEPLOYMENT and VITE_CONVEX_URL environment variables on the client side.
+### Frontend (`.env.local`)
+- `VITE_CONVEX_URL` - Convex deployment URL (auto-configured)
 
-The convex server has a separate set of environment variables that are accessible by the convex backend.
+### Backend (`backend/.env`)
+- `OPENROUTER_API_KEY` - OpenRouter API key (required)
+- `AI_MODEL` - Model to use (default: llama-3.2-3b-instruct:free)
+- `CORS_ORIGINS` - Allowed origins (default: http://localhost:5173)
 
-Currently, these variables include auth-specific keys: JWKS, JWT_PRIVATE_KEY, and SITE_URL.
+### Convex
+- `JWKS`, `JWT_PRIVATE_KEY`, `SITE_URL` - Auth keys (auto-configured)
 
 
 # Using Authentication (Important!)

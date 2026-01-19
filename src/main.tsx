@@ -12,6 +12,9 @@ import "./types/global.d.ts";
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Chat = lazy(() => import("./pages/Chat.tsx"));
+const Quiz = lazy(() => import("./pages/Quiz.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -61,7 +64,10 @@ createRoot(document.getElementById("root")!).render(
           <Suspense fallback={<RouteLoading />}>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/auth" element={<AuthPage redirectAfterAuth="/" />} /> {/* TODO: change redirect after auth to correct page */}
+              <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/quiz" element={<Quiz />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

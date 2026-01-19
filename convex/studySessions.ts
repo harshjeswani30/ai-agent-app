@@ -1,123 +1,107 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUser } from "./users";
 
 // Create a new study session
-export const create = mutation({
+export const createSession = mutation({
   args: {
+    subject: v.string(),
     topic: v.string(),
-    type: v.union(
-      v.literal("explanation"),
-      v.literal("flashcards"),
-      v.literal("quiz"),
-      v.literal("schedule")
-    ),
-    duration: v.optional(v.number()),
+    notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
+    const user = await getCurrentUser(ctx);
+    if (!user || !user._id) {
+      throw new Error("Unauthorized");
     }
 
-    return await ctx.db.insert("studySessions", {
-      userId,
+    const sessionId = await ctx.db.insert("studySessions", {
+      userId: user._id as string,
+      subject: args.subject,
       topic: args.topic,
-      type: args.type,
-      duration: args.duration,
-      completed: false,
+      duration: 0,
+      notes: args.notes,
+      status: "active" as const,
     });
+
+    return sessionId;
   },
 });
 
-// Complete a study session
-export const complete = mutation({
+// Update session duration and status
+export const updateSession = mutation({
   args: {
     sessionId: v.id("studySessions"),
     duration: v.optional(v.number()),
+    status: v.optional(v.union(v.literal("active"), v.literal("completed"), v.literal("paused"))),
+    notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
+    const user = await getCurrentUser(ctx);
+    if (!user) {
+      throw new Error("Unauthorized");
     }
 
     const session = await ctx.db.get(args.sessionId);
-    if (!session || session.userId !== userId) {
+    if (!session || session.userId !== user._id) {
       throw new Error("Session not found or unauthorized");
     }
 
     await ctx.db.patch(args.sessionId, {
-      completed: true,
-      duration: args.duration ?? session.duration,
+      ...(args.duration !== undefined && { duration: args.duration }),
+      ...(args.status && { status: args.status }),
+      ...(args.notes && { notes: args.notes }),
     });
+
+    return args.sessionId;
   },
 });
 
 // Get user's study sessions
 export const getUserSessions = query({
   args: {
-    limit: v.optional(v.number()),
+    subject: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const user = await getCurrentUser(ctx);
+    if (!user || !user._id) {
       return [];
     }
 
-    const sessions = await ctx.db
+    let query = ctx.db
       .query("studySessions")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .order("desc")
-      .take(args.limit ?? 50);
+      .withIndex("by_user", (q) => q.eq("userId", user._id as string))
+      .order("desc");
 
+    if (args.subject) {
+      query = ctx.db
+        .query("studySessions")
+        .withIndex("by_user_and_subject", (q) =>
+          q.eq("userId", user._id as string).eq("subject", args.subject)
+        )
+        .order("desc");
+    }
+
+    const sessions = await query.take(50);
     return sessions;
   },
 });
 
-// Get study statistics
-export const getStats = query({
+// Get active session
+export const getActiveSession = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      return {
-        totalSessions: 0,
-        totalMinutes: 0,
-        byType: {
-          explanation: 0,
-          flashcards: 0,
-          quiz: 0,
-          schedule: 0,
-        },
-      };
+    const user = await getCurrentUser(ctx);
+    if (!user) {
+      return null;
     }
 
     const sessions = await ctx.db
       .query("studySessions")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .take(10);
 
-    const totalMinutes = sessions.reduce(
-      (sum, s) => sum + (s.duration ?? 0),
-      0
-    );
-
-    const byType = {
-      explanation: 0,
-      flashcards: 0,
-      quiz: 0,
-      schedule: 0,
-    };
-
-    sessions.forEach((s) => {
-      byType[s.type]++;
-    });
-
-    return {
-      totalSessions: sessions.length,
-      totalMinutes,
-      byType,
-    };
+    return sessions.find((s) => s.status === "active") || null;
   },
 });

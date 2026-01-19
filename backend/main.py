@@ -101,40 +101,62 @@ async def chat(request: ChatRequest):
     Chat with the AI study assistant.
     Handles questions, explanations, and study guidance.
     """
-    try:
-        logger.info(f"Processing chat request: {request.message[:50]}...")
+    max_retries = 3
+    retry_delay = 0.5  # seconds
 
-        # Create context for the agent
-        context = StudyContext(
-            subject=request.subject or "general",
-            difficulty=request.difficulty or "intermediate"
-        )
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Processing chat request (attempt {attempt + 1}/{max_retries}): {request.message[:50]}...")
 
-        # Run the agent
-        result = await study_agent.run(
-            request.message,
-            deps=context
-        )
+            # Create context for the agent
+            context = StudyContext(
+                subject=request.subject or "general",
+                difficulty=request.difficulty or "intermediate"
+            )
 
-        # Extract response
-        response_text = result.data
+            # Run the agent
+            result = await study_agent.run(
+                request.message,
+                deps=context
+            )
 
-        # Generate follow-up questions
-        follow_ups = [
-            "Can you explain this in simpler terms?",
-            "What are some practice problems for this topic?",
-            "How does this relate to real-world applications?"
-        ]
+            # Extract response
+            response_text = result.data
 
-        return ChatResponse(
-            response=response_text,
-            sources=None,
-            follow_up_questions=follow_ups
-        )
+            # Generate follow-up questions
+            follow_ups = [
+                "Can you explain this in simpler terms?",
+                "What are some practice problems for this topic?",
+                "How does this relate to real-world applications?"
+            ]
 
-    except Exception as e:
-        logger.error(f"Error in chat endpoint: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+            return ChatResponse(
+                response=response_text,
+                sources=None,
+                follow_up_questions=follow_ups
+            )
+
+        except Exception as e:
+            error_msg = str(e)
+
+            # Check if it's a concurrency error
+            if "OptimisticConcurrencyControlFailure" in error_msg or "agent_message" in error_msg:
+                if attempt < max_retries - 1:
+                    logger.warning(f"Database concurrency conflict on attempt {attempt + 1}, retrying in {retry_delay}s...")
+                    import asyncio
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                else:
+                    logger.error(f"Max retries reached for chat request: {error_msg}")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="The AI assistant is currently busy. Please try again in a moment."
+                    )
+            else:
+                # Non-retryable error
+                logger.error(f"Error in chat endpoint: {error_msg}")
+                raise HTTPException(status_code=500, detail=str(e))
 
 
 # Generate quiz
@@ -144,35 +166,55 @@ async def generate_quiz(request: QuizRequest):
     Generate a quiz for a given subject and topic.
     Uses AI to create questions with multiple choice answers.
     """
-    try:
-        logger.info(f"Generating quiz: {request.subject} - {request.topic}")
+    max_retries = 3
+    retry_delay = 0.5
 
-        # Create context for quiz agent
-        context = QuizContext(
-            subject=request.subject,
-            topic=request.topic,
-            num_questions=request.num_questions,
-            difficulty=request.difficulty
-        )
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Generating quiz (attempt {attempt + 1}/{max_retries}): {request.subject} - {request.topic}")
 
-        # Run the quiz agent
-        result = await quiz_agent.run(
-            f"Generate {request.num_questions} quiz questions about {request.topic} in {request.subject}",
-            deps=context
-        )
+            # Create context for quiz agent
+            context = QuizContext(
+                subject=request.subject,
+                topic=request.topic,
+                num_questions=request.num_questions,
+                difficulty=request.difficulty
+            )
 
-        # Parse the quiz data
-        quiz_data = result.data
+            # Run the quiz agent
+            result = await quiz_agent.run(
+                f"Generate {request.num_questions} quiz questions about {request.topic} in {request.subject}",
+                deps=context
+            )
 
-        return QuizResponse(
-            questions=quiz_data["questions"],
-            subject=request.subject,
-            topic=request.topic
-        )
+            # Parse the quiz data
+            quiz_data = result.data
 
-    except Exception as e:
-        logger.error(f"Error generating quiz: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+            return QuizResponse(
+                questions=quiz_data["questions"],
+                subject=request.subject,
+                topic=request.topic
+            )
+
+        except Exception as e:
+            error_msg = str(e)
+
+            if "OptimisticConcurrencyControlFailure" in error_msg or "agent_message" in error_msg:
+                if attempt < max_retries - 1:
+                    logger.warning(f"Database concurrency conflict, retrying in {retry_delay}s...")
+                    import asyncio
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2
+                    continue
+                else:
+                    logger.error(f"Max retries reached for quiz generation: {error_msg}")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="The AI assistant is currently busy. Please try again."
+                    )
+            else:
+                logger.error(f"Error generating quiz: {error_msg}")
+                raise HTTPException(status_code=500, detail=str(e))
 
 
 # Generate study plan

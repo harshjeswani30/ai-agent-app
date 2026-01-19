@@ -35,6 +35,7 @@ export default function Chat() {
   const [difficulty, setDifficulty] = useState("intermediate");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const requestInProgressRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,8 +48,9 @@ export default function Chat() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || requestInProgressRef.current) return;
 
+    requestInProgressRef.current = true;
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -60,39 +62,55 @@ export default function Chat() {
     setInput("");
     setIsLoading(true);
 
-    try {
-      const response = await fetch("http://localhost:8000/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          subject,
-          difficulty,
-        }),
-      });
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const response = await fetch("http://localhost:8000/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: userMessage.content,
+            subject,
+            difficulty,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to get response");
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.detail || "Failed to get response";
+          throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.response,
+          timestamp: Date.now(),
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+        break; // Success, exit retry loop
+      } catch (error) {
+        console.error("Error:", error);
+        retries--;
+
+        if (retries === 0) {
+          toast.error("Failed to get response. Please try again.");
+          // Remove the user message if all retries failed
+          setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
+        } else {
+          // Wait before retrying (exponential backoff)
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (4 - retries)));
+        }
       }
-
-      const data = await response.json();
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.response,
-        timestamp: Date.now(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to get response. Make sure the backend is running.");
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
+    requestInProgressRef.current = false;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
