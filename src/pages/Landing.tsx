@@ -114,7 +114,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[85vh] flex items-center">
         {/* Background Elements */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
@@ -122,69 +122,68 @@ export default function Landing() {
           <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000" />
         </div>
 
-        <div className="container mx-auto px-4 py-20 md:py-32">
+        <div className="container mx-auto px-4 py-12 md:py-16">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center space-y-8"
+              className="text-center"
             >
               {/* Badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full"
+                className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-primary/10 border border-primary/20 rounded-full"
               >
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">Powered by Advanced AI</span>
               </motion.div>
 
               {/* Headline */}
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
-                <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-tight">
+                <span className="block bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
                   Study Smarter,
                 </span>
-                <br />
-                <span className="bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent">
                   Not Harder
                 </span>
               </h1>
 
               {/* Subheadline */}
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-10">
                 Transform your learning experience with AI-powered tutoring, personalized study plans,
                 and intelligent assessments that adapt to your needs.
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
                 <Link to="/auth">
-                  <Button size="lg" className="text-lg px-8 h-14 gap-2 shadow-lg hover:shadow-xl transition-all">
+                  <Button size="lg" className="text-lg px-8 h-14 gap-2 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
                     Start Free Trial
                     <ArrowRight className="h-5 w-5" />
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button size="lg" variant="outline" className="text-lg px-8 h-14 gap-2">
+                  <Button size="lg" variant="outline" className="text-lg px-8 h-14 gap-2 w-full sm:w-auto">
                     Continue as Guest
                   </Button>
                 </Link>
               </div>
 
               {/* Social Proof */}
-              <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                   <span>No credit card required</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                   <span>Free forever plan</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                   <span>10K+ students trust us</span>
                 </div>
               </div>
