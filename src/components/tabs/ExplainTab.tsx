@@ -5,20 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Lightbulb, CheckCircle2, BookmarkPlus } from "lucide-react";
+import { Loader2, Lightbulb, BookmarkPlus, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { apiClient, ExplanationResponse } from "@/lib/api";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "convex/_generated/api";
 
 export default function ExplainTab() {
   const [topic, setTopic] = useState("");
-  const [depth, setDepth] = useState<"basic" | "intermediate" | "advanced">("intermediate");
+  const [depth, setDepth] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ExplanationResponse | null>(null);
+  const [result, setResult] = useState<any>(null);
 
   const create = useMutation(api.studySessions.create);
   const saveContent = useMutation(api.savedContent.save);
+  const explainTopic = useAction(api.ai.explainTopic);
 
   const handleExplain = async () => {
     if (!topic.trim()) {
@@ -28,13 +28,13 @@ export default function ExplainTab() {
 
     setLoading(true);
     try {
-      const sessionId = await create({ type: "explanation", subject: topic, topic, notes: `Explanation: ${depth}` });
-      const response = await apiClient.explainTopic({ topic, depth });
+      await create({ type: "explanation", subject: topic, topic, notes: `Explanation: ${depth}` });
+      const response = await explainTopic({ topic, depth });
       setResult(response);
       toast.success("Explanation generated successfully!");
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to generate explanation. Make sure the Python backend is running.");
+      toast.error("Failed to generate explanation");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ export default function ExplainTab() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="basic">Basic</SelectItem>
+              <SelectItem value="beginner">Beginner</SelectItem>
               <SelectItem value="intermediate">Intermediate</SelectItem>
               <SelectItem value="advanced">Advanced</SelectItem>
             </SelectContent>
@@ -119,41 +119,45 @@ export default function ExplainTab() {
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{result.explanation}</p>
               </div>
 
-              <div>
-                <h4 className="font-semibold mb-2 text-primary">Key Points</h4>
-                <ul className="space-y-2">
-                  {result.key_points.map((point, idx) => (
-                    <motion.li
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-start gap-2 text-sm"
-                    >
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>{point}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
+              {result.key_points && result.key_points.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2 text-primary">Key Points</h4>
+                  <ul className="space-y-2">
+                    {result.key_points.map((point: string, idx: number) => (
+                      <motion.li
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="flex items-start gap-2 text-sm"
+                      >
+                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>{point}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-              <div>
-                <h4 className="font-semibold mb-2 text-primary">Examples</h4>
-                <ul className="space-y-2">
-                  {result.examples.map((example, idx) => (
-                    <motion.li
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: (result.key_points.length + idx) * 0.1 }}
-                      className="flex items-start gap-2 text-sm"
-                    >
-                      <Lightbulb className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
-                      <span>{example}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
+              {result.examples && result.examples.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2 text-primary">Examples</h4>
+                  <ul className="space-y-2">
+                    {result.examples.map((example: string, idx: number) => (
+                      <motion.li
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (result.key_points?.length || 0 + idx) * 0.1 }}
+                        className="flex items-start gap-2 text-sm"
+                      >
+                        <Lightbulb className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                        <span>{example}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

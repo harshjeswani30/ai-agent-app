@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Calendar, Plus, X, BookmarkPlus, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { apiClient, ScheduleResponse } from "@/lib/api";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "convex/_generated/api";
 
 export default function ScheduleTab() {
@@ -15,10 +14,11 @@ export default function ScheduleTab() {
   const [hoursPerDay, setHoursPerDay] = useState("2");
   const [days, setDays] = useState("7");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ScheduleResponse | null>(null);
+  const [result, setResult] = useState<any>(null);
 
   const create = useMutation(api.studySessions.create);
   const saveContent = useMutation(api.savedContent.save);
+  const createSchedule = useAction(api.ai.createSchedule);
 
   const addTopic = () => {
     setTopics([...topics, ""]);
@@ -59,7 +59,7 @@ export default function ScheduleTab() {
     setLoading(true);
     try {
       await create({ type: "schedule", subject: validTopics[0], topic: validTopics.join(", "), notes: "Study schedule" });
-      const response = await apiClient.createSchedule({
+      const response = await createSchedule({
         topics: validTopics,
         hours_per_day: hours,
         days: numDays,
@@ -68,7 +68,7 @@ export default function ScheduleTab() {
       toast.success("Study schedule created!");
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to create schedule. Make sure the Python backend is running.");
+      toast.error("Failed to create schedule");
     } finally {
       setLoading(false);
     }
@@ -89,15 +89,15 @@ export default function ScheduleTab() {
     }
   };
 
-  const groupedSchedule = result?.schedule.reduce(
-    (acc, block) => {
+  const groupedSchedule = result?.schedule?.reduce(
+    (acc: any, block: any) => {
       if (!acc[block.day]) {
         acc[block.day] = [];
       }
       acc[block.day].push(block);
       return acc;
     },
-    {} as Record<number, typeof result.schedule>
+    {} as Record<number, any[]>
   );
 
   return (
@@ -189,7 +189,7 @@ export default function ScheduleTab() {
             </Button>
           </div>
 
-          {Object.entries(groupedSchedule).map(([day, blocks]) => (
+          {Object.entries(groupedSchedule).map(([day, blocks]: [string, any]) => (
             <Card key={day} className="border-primary/20">
               <CardContent className="pt-6 space-y-3">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
@@ -197,7 +197,7 @@ export default function ScheduleTab() {
                   Day {day}
                 </h3>
                 <div className="space-y-2">
-                  {blocks.map((block, idx) => (
+                  {blocks.map((block: any, idx: number) => (
                     <motion.div
                       key={idx}
                       initial={{ opacity: 0, x: -20 }}
@@ -220,25 +220,27 @@ export default function ScheduleTab() {
             </Card>
           ))}
 
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3">Study Tips</h3>
-              <ul className="space-y-2">
-                {result.tips.map((tip, idx) => (
-                  <motion.li
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="text-sm flex items-start gap-2"
-                  >
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>{tip}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          {result.tips && result.tips.length > 0 && (
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold mb-3">Study Tips</h3>
+                <ul className="space-y-2">
+                  {result.tips.map((tip: string, idx: number) => (
+                    <motion.li
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="text-sm flex items-start gap-2"
+                    >
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{tip}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
       )}
     </div>

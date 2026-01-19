@@ -8,8 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, Brain, CheckCircle2, XCircle, Trophy } from "lucide-react";
 import { toast } from "sonner";
-import { apiClient, QuizResponse } from "@/lib/api";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "convex/_generated/api";
 
 export default function QuizTab() {
@@ -17,13 +16,14 @@ export default function QuizTab() {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [count, setCount] = useState("5");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<QuizResponse | null>(null);
+  const [result, setResult] = useState<any>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
 
   const create = useMutation(api.studySessions.create);
   const saveResult = useMutation(api.quizzes.saveResult);
+  const generateQuiz = useAction(api.ai.generateQuiz);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -40,15 +40,15 @@ export default function QuizTab() {
     setLoading(true);
     try {
       await create({ type: "quiz", subject: topic, topic, notes: `Quiz: ${difficulty}` });
-      const response = await apiClient.generateQuiz({ topic, difficulty, count: questionCount });
+      const response = await generateQuiz({ topic, difficulty, count: questionCount });
       setResult(response);
       setCurrentQuestion(0);
-      setUserAnswers(new Array(response.questions.length).fill(""));
+      setUserAnswers(new Array(response.questions?.length || 0).fill(""));
       setShowResults(false);
-      toast.success(`Quiz with ${response.questions.length} questions generated!`);
+      toast.success(`Quiz with ${response.questions?.length || 0} questions generated!`);
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to generate quiz. Make sure the Python backend is running.");
+      toast.error("Failed to generate quiz");
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function QuizTab() {
     if (!result) return;
 
     const correctCount = result.questions.filter(
-      (q, idx) => q.correct_answer === userAnswers[idx]
+      (q: any, idx: number) => q.correct_answer === userAnswers[idx]
     ).length;
 
     await saveResult({
@@ -71,7 +71,7 @@ export default function QuizTab() {
     toast.success(`Quiz completed! Score: ${correctCount}/${result.questions.length}`);
   };
 
-  const question = result?.questions[currentQuestion];
+  const question = result?.questions?.[currentQuestion];
 
   return (
     <div className="space-y-6">
@@ -143,7 +143,7 @@ export default function QuizTab() {
               Question {currentQuestion + 1} of {result.questions.length}
             </p>
             <div className="flex gap-2">
-              {result.questions.map((_, idx) => (
+              {result.questions.map((_: any, idx: number) => (
                 <div
                   key={idx}
                   className={`h-2 w-8 rounded ${
@@ -170,7 +170,7 @@ export default function QuizTab() {
                   setUserAnswers(newAnswers);
                 }}
               >
-                {question.options.map((option, idx) => (
+                {question.options?.map((option: string, idx: number) => (
                   <div key={idx} className="flex items-center space-x-2 p-3 rounded border hover:bg-muted/50">
                     <RadioGroupItem value={option} id={`option-${idx}`} />
                     <Label htmlFor={`option-${idx}`} className="flex-1 cursor-pointer">
@@ -214,16 +214,16 @@ export default function QuizTab() {
               <Trophy className="h-16 w-16 text-primary mx-auto" />
               <h2 className="text-3xl font-bold">Quiz Complete!</h2>
               <p className="text-4xl font-bold text-primary">
-                {result.questions.filter((q, idx) => q.correct_answer === userAnswers[idx]).length} / {result.questions.length}
+                {result.questions.filter((q: any, idx: number) => q.correct_answer === userAnswers[idx]).length} / {result.questions.length}
               </p>
               <p className="text-muted-foreground">
-                {Math.round((result.questions.filter((q, idx) => q.correct_answer === userAnswers[idx]).length / result.questions.length) * 100)}% correct
+                {Math.round((result.questions.filter((q: any, idx: number) => q.correct_answer === userAnswers[idx]).length / result.questions.length) * 100)}% correct
               </p>
             </CardContent>
           </Card>
 
           <div className="space-y-4">
-            {result.questions.map((q, idx) => {
+            {result.questions.map((q: any, idx: number) => {
               const isCorrect = q.correct_answer === userAnswers[idx];
               return (
                 <Card key={idx} className={`border-2 ${isCorrect ? "border-green-500/40" : "border-red-500/40"}`}>

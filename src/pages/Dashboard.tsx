@@ -91,9 +91,9 @@ export default function Dashboard() {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
                       <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
-                        {currentUser?.name || currentUser?.username ? (
+                        {currentUser?.name ? (
                           <span className="text-sm font-semibold">
-                            {(currentUser.name || currentUser.username || "U").charAt(0).toUpperCase()}
+                            {currentUser.name.charAt(0).toUpperCase()}
                           </span>
                         ) : currentUser?.email ? (
                           <span className="text-sm font-semibold">
@@ -111,9 +111,9 @@ export default function Dashboard() {
                     <div className="flex flex-col space-y-2 p-2">
                       <div className="flex items-center gap-2">
                         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                          {currentUser?.name || currentUser?.username ? (
+                          {currentUser?.name ? (
                             <span className="text-lg font-bold text-primary">
-                              {(currentUser.name || currentUser.username || "U").charAt(0).toUpperCase()}
+                              {(currentUser.name || "U").charAt(0).toUpperCase()}
                             </span>
                           ) : currentUser?.email ? (
                             <span className="text-lg font-bold text-primary">
@@ -125,10 +125,10 @@ export default function Dashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold leading-none mb-1">
-                            {currentUser?.name || (currentUser?.email ? "Account" : "Guest User")}
+                            {currentUser?.name || "Account"}
                           </p>
                           <p className="text-xs leading-none text-muted-foreground truncate">
-                            {currentUser?.username ? `@${currentUser.username}` : (currentUser?.email || "Continue as guest")}
+                            {currentUser?.email || "No email"}
                           </p>
                         </div>
                       </div>
@@ -171,7 +171,7 @@ export default function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-2">
-                Welcome back{currentUser?.name ? ", " + currentUser.name : (currentUser?.username ? ", " + currentUser.username : (currentUser?.email ? ", " + currentUser.email.split("@")[0] : ""))}! 👋
+                Welcome back{currentUser?.name ? ", " + currentUser.name : (currentUser?.email ? ", " + currentUser.email.split("@")[0] : "")}! 👋
               </h2>
               <p className="text-muted-foreground text-lg">
                 Ready to continue your learning journey?
@@ -364,7 +364,6 @@ export default function Dashboard() {
         open={profileDialogOpen}
         onOpenChange={setProfileDialogOpen}
         currentName={currentUser?.name}
-        currentUsername={currentUser?.username}
       />
     </div>
   );

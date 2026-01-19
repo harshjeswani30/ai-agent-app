@@ -6,20 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, RotateCw, BookmarkPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { apiClient, FlashcardResponse } from "@/lib/api";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "convex/_generated/api";
 
 export default function FlashcardsTab() {
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState("5");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<FlashcardResponse | null>(null);
+  const [result, setResult] = useState<any>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
   const create = useMutation(api.studySessions.create);
   const saveContent = useMutation(api.savedContent.save);
+  const generateFlashcards = useAction(api.ai.generateFlashcards);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -36,14 +36,14 @@ export default function FlashcardsTab() {
     setLoading(true);
     try {
       await create({ type: "flashcards", subject: topic, topic, notes: `Flashcards: ${cardCount}` });
-      const response = await apiClient.generateFlashcards({ topic, count: cardCount });
+      const response = await generateFlashcards({ topic, count: cardCount });
       setResult(response);
       setCurrentIndex(0);
       setFlipped(false);
-      toast.success(`${response.flashcards.length} flashcards generated!`);
+      toast.success(`${response.flashcards?.length || 0} flashcards generated!`);
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to generate flashcards. Make sure the Python backend is running.");
+      toast.error("Failed to generate flashcards");
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function FlashcardsTab() {
     }
   };
 
-  const currentCard = result?.flashcards[currentIndex];
+  const currentCard = result?.flashcards?.[currentIndex];
 
   return (
     <div className="space-y-6">
