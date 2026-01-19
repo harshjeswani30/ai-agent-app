@@ -6,7 +6,8 @@ import os
 import json
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.openai import OpenAIProvider
 
 
 # Context for quiz generation
@@ -35,19 +36,25 @@ class QuizData(BaseModel):
 
 # Configure the AI model
 api_key = os.getenv("OPENROUTER_API_KEY")
-model_name = os.getenv("AI_MODEL", "meta-llama/llama-3.2-3b-instruct:free")
+model_name = os.getenv("AI_MODEL", "tngtech/deepseek-r1t2-chimera:free")
 
-model = OpenAIModel(
-    model_name,
+# Create OpenAI-compatible provider for OpenRouter
+provider = OpenAIProvider(
     base_url="https://openrouter.ai/api/v1",
     api_key=api_key,
+)
+
+# Create the model
+model = OpenAIChatModel(
+    model_name,
+    provider=provider,
 )
 
 # Initialize the quiz agent
 quiz_agent = Agent(
     model,
     deps_type=QuizContext,
-    result_type=QuizData,
+    output_type=QuizData,
     system_prompt="""You are a quiz generation expert for StudyBuddy AI.
 
 Your role is to:
@@ -70,7 +77,10 @@ Always return questions in valid JSON format matching the QuizData model.
 )
 
 
-@quiz_agent.tool
+# Tools are commented out as the free model doesn't support tool calling
+# Uncomment if using a model that supports tools (e.g., gpt-4, claude-3)
+
+# @quiz_agent.tool
 async def create_question(
     ctx: RunContext[QuizContext],
     question_text: str,
@@ -102,7 +112,7 @@ async def create_question(
     }
 
 
-@quiz_agent.tool
+# @quiz_agent.tool
 async def validate_quiz(ctx: RunContext[QuizContext], quiz_data: dict) -> bool:
     """
     Validate that a quiz meets quality standards.
@@ -137,7 +147,7 @@ async def validate_quiz(ctx: RunContext[QuizContext], quiz_data: dict) -> bool:
         return False
 
 
-@quiz_agent.tool
+# @quiz_agent.tool
 async def suggest_topics(ctx: RunContext[QuizContext]) -> list[str]:
     """
     Suggest related topics that could be tested.

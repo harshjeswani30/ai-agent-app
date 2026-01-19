@@ -9,8 +9,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import logging
 
-from agents.study_agent_simple import run_study_agent
-from agents.quiz_agent_simple import generate_quiz
+from agents import study_agent, StudyContext, quiz_agent, QuizContext, QuizData
 
 # Load environment variables
 load_dotenv()
@@ -101,18 +100,20 @@ async def chat(request: ChatRequest):
     Chat with the AI study assistant.
     Handles questions, explanations, and study guidance.
     """
-    max_retries = 3
-    retry_delay = 0.5  # seconds
-
     try:
         logger.info(f"Processing chat request: {request.message[:50]}...")
 
-        # Run the simplified study agent
-        response_text = await run_study_agent(
-            message=request.message,
+        # Create study context
+        context = StudyContext(
             subject=request.subject or "general",
             difficulty=request.difficulty or "intermediate"
         )
+
+        # Run the Pydantic AI study agent
+        result = await study_agent.run(request.message, deps=context)
+
+        # Extract response text
+        response_text = result.output
 
         # Generate follow-up questions
         follow_ups = [
@@ -142,16 +143,47 @@ async def generate_quiz_endpoint(request: QuizRequest):
     try:
         logger.info(f"Generating quiz: {request.subject} - {request.topic}")
 
-        # Run the simplified quiz generator
-        quiz_data = await generate_quiz(
+        # Create quiz context
+        context = QuizContext(
             subject=request.subject,
             topic=request.topic,
             num_questions=request.num_questions,
             difficulty=request.difficulty
         )
 
+        # Create the quiz generation prompt
+        prompt = f"""Generate {request.num_questions} multiple choice quiz questions about {request.topic} in {request.subject}.
+
+Difficulty level: {request.difficulty}
+
+Create educational questions that test understanding, not just memorization.
+Each question should have 4 options with one correct answer."""
+
+        # Run the Pydantic AI quiz agent
+        result = await quiz_agent.run(prompt, deps=context)
+
+        # Extract quiz data
+        quiz_data: QuizData = result.output
+
+        # Convert to response format - adjust correct_answer to index
+        questions = []
+        for q in quiz_data.questions:
+            # Find the index of correct answer
+            correct_index = 0
+            for i, opt in enumerate(q.options):
+                if opt == q.correct_answer:
+                    correct_index = i
+                    break
+
+            questions.append(QuizQuestion(
+                question=q.question,
+                options=q.options,
+                correct_answer=str(correct_index),
+                explanation=q.explanation
+            ))
+
         return QuizResponse(
-            questions=quiz_data["questions"],
+            questions=questions,
             subject=request.subject,
             topic=request.topic
         )
@@ -189,7 +221,7 @@ Provide a structured plan with weekly breakdown and milestones."""
         result = await study_agent.run(prompt, deps=context)
 
         # Parse the response into structured format
-        plan_text = result.data
+        plan_text = result.output
 
         # Create sample weekly schedule (in production, parse from AI response)
         weekly_schedule = [

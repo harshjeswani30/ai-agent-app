@@ -5,7 +5,8 @@ Helps students with explanations, concepts, and study guidance
 import os
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.openai import OpenAIProvider
 
 
 # Context for the study agent
@@ -17,20 +18,25 @@ class StudyContext(BaseModel):
 
 # Configure the AI model (using OpenRouter)
 api_key = os.getenv("OPENROUTER_API_KEY")
-model_name = os.getenv("AI_MODEL", "meta-llama/llama-3.2-3b-instruct:free")
+model_name = os.getenv("AI_MODEL", "tngtech/deepseek-r1t2-chimera:free")
 
-# Create OpenAI-compatible model for OpenRouter
-model = OpenAIModel(
-    model_name,
+# Create OpenAI-compatible provider for OpenRouter
+provider = OpenAIProvider(
     base_url="https://openrouter.ai/api/v1",
     api_key=api_key,
+)
+
+# Create the model
+model = OpenAIChatModel(
+    model_name,
+    provider=provider,
 )
 
 # Initialize the study agent
 study_agent = Agent(
     model,
     deps_type=StudyContext,
-    result_type=str,
+    output_type=str,
     system_prompt="""You are StudyBuddy, an expert AI tutor and study assistant.
 
 Your role is to:
@@ -54,8 +60,10 @@ Format your responses in a clear, structured way using markdown when helpful.
 )
 
 
-# Add tools to the study agent
-@study_agent.tool
+# Tools are commented out as the free model doesn't support tool calling
+# Uncomment if using a model that supports tools (e.g., gpt-4, claude-3)
+
+# @study_agent.tool
 async def break_down_concept(ctx: RunContext[StudyContext], concept: str) -> str:
     """
     Break down a complex concept into simpler parts.
@@ -80,7 +88,7 @@ async def break_down_concept(ctx: RunContext[StudyContext], concept: str) -> str
 This breakdown can be filled in based on the specific concept."""
 
 
-@study_agent.tool
+# @study_agent.tool
 async def generate_examples(ctx: RunContext[StudyContext], topic: str, count: int = 3) -> dict:
     """
     Generate practice examples for a topic.
@@ -105,7 +113,7 @@ async def generate_examples(ctx: RunContext[StudyContext], topic: str, count: in
     }
 
 
-@study_agent.tool
+# @study_agent.tool
 async def suggest_study_techniques(ctx: RunContext[StudyContext], topic: str) -> list[str]:
     """
     Suggest effective study techniques for a topic.
@@ -127,7 +135,7 @@ async def suggest_study_techniques(ctx: RunContext[StudyContext], topic: str) ->
     return techniques
 
 
-@study_agent.tool
+# @study_agent.tool
 async def check_understanding(ctx: RunContext[StudyContext], concept: str) -> dict:
     """
     Generate questions to check understanding of a concept.
