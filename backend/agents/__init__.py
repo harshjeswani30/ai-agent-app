@@ -1,5 +1,5 @@
-"""Agents module - Pydantic AI agents"""
-from .study_agent import study_agent, StudyContext
-from .quiz_agent import quiz_agent, QuizContext
+# Simplified agents without pydantic-ai
+from .study_agent_simple import run_study_agent
+from .quiz_agent_simple import generate_quiz
 
-__all__ = ["study_agent", "StudyContext", "quiz_agent", "QuizContext"]
+__all__ = ['run_study_agent', 'generate_quiz']
