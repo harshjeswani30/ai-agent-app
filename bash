@@ -1,0 +1,1 @@
+npx convex env set VLY_INTEGRATION_KEY "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"
