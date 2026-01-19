@@ -50,7 +50,7 @@ export default function Landing() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <Link to="/dashboard">
+              <Link to="/auth">
                 <Button>Get Started</Button>
               </Link>
             </motion.div>
@@ -81,7 +81,7 @@ export default function Landing() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/dashboard">
+                <Link to="/auth">
                   <Button size="lg" className="text-lg px-8">
                     Start Learning
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -150,7 +150,7 @@ export default function Landing() {
             <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
               Join thousands of students who are studying smarter with AI
             </p>
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button size="lg" variant="secondary" className="text-lg px-8">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
