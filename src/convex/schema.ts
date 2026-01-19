@@ -32,12 +32,67 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // add other tables here
+    // Study session tracking
+    studySessions: defineTable({
+      userId: v.string(),
+      subject: v.string(),
+      topic: v.string(),
+      duration: v.number(), // in minutes
+      notes: v.optional(v.string()),
+      status: v.union(v.literal("active"), v.literal("completed"), v.literal("paused")),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_and_subject", ["userId", "subject"]),
 
-    // tableName: defineTable({
-    //   ...
-    //   // table fields
-    // }).index("by_field", ["field"])
+    // Quiz results
+    quizResults: defineTable({
+      userId: v.string(),
+      subject: v.string(),
+      topic: v.string(),
+      totalQuestions: v.number(),
+      correctAnswers: v.number(),
+      score: v.number(), // percentage
+      difficulty: v.string(),
+      timeSpent: v.number(), // in seconds
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_and_subject", ["userId", "subject"]),
+
+    // Chat history
+    chatMessages: defineTable({
+      userId: v.string(),
+      message: v.string(),
+      response: v.string(),
+      subject: v.optional(v.string()),
+      difficulty: v.optional(v.string()),
+    }).index("by_user", ["userId"]),
+
+    // Study plans
+    studyPlans: defineTable({
+      userId: v.string(),
+      subject: v.string(),
+      goal: v.string(),
+      durationWeeks: v.number(),
+      hoursPerWeek: v.number(),
+      planData: v.string(), // JSON stringified plan
+      progress: v.number(), // percentage completed
+      status: v.union(v.literal("active"), v.literal("completed"), v.literal("archived")),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_and_status", ["userId", "status"]),
+
+    // User progress tracking
+    userProgress: defineTable({
+      userId: v.string(),
+      subject: v.string(),
+      totalStudyTime: v.number(), // in minutes
+      quizzesTaken: v.number(),
+      averageScore: v.number(),
+      streak: v.number(), // days
+      lastStudyDate: v.number(), // timestamp
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_and_subject", ["userId", "subject"])
   },
   {
     schemaValidation: false,
