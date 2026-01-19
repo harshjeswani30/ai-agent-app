@@ -29,7 +29,7 @@ export default function SavedTab() {
 
   const handleDelete = async (id: Id<"savedContent">) => {
     try {
-      await removeContent({ contentId: id });
+      await removeContent({ id });
       toast.success("Content deleted");
     } catch (error) {
       toast.error("Failed to delete");

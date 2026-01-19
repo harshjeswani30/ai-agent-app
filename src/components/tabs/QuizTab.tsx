@@ -39,7 +39,7 @@ export default function QuizTab() {
 
     setLoading(true);
     try {
-      await create({ subject: topic, topic, notes: `Quiz: ${difficulty}` });
+      await create({ type: "quiz", subject: topic, topic, notes: `Quiz: ${difficulty}` });
       const response = await apiClient.generateQuiz({ topic, difficulty, count: questionCount });
       setResult(response);
       setCurrentQuestion(0);

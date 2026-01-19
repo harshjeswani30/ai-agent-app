@@ -28,7 +28,7 @@ export default function ExplainTab() {
 
     setLoading(true);
     try {
-      const sessionId = await create({ subject: topic, topic, notes: `Explanation: ${depth}` });
+      const sessionId = await create({ type: "explanation", subject: topic, topic, notes: `Explanation: ${depth}` });
       const response = await apiClient.explainTopic({ topic, depth });
       setResult(response);
       toast.success("Explanation generated successfully!");

@@ -35,7 +35,7 @@ export default function FlashcardsTab() {
 
     setLoading(true);
     try {
-      await create({ subject: topic, topic, notes: `Flashcards: ${cardCount}` });
+      await create({ type: "flashcards", subject: topic, topic, notes: `Flashcards: ${cardCount}` });
       const response = await apiClient.generateFlashcards({ topic, count: cardCount });
       setResult(response);
       setCurrentIndex(0);

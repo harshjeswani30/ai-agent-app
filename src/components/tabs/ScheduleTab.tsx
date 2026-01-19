@@ -58,7 +58,7 @@ export default function ScheduleTab() {
 
     setLoading(true);
     try {
-      await create({ subject: validTopics[0], topic: validTopics.join(", "), notes: "Study schedule" });
+      await create({ type: "schedule", subject: validTopics[0], topic: validTopics.join(", "), notes: "Study schedule" });
       const response = await apiClient.createSchedule({
         topics: validTopics,
         hours_per_day: hours,
