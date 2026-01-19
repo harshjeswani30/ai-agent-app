@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query, QueryCtx } from "./_generated/server";
+import { query, mutation, QueryCtx } from "./_generated/server";
+import { v } from "convex/values";
 
 /**
  * Get the current signed in user. Returns null if the user is not signed in.
@@ -31,3 +32,39 @@ export const getCurrentUser = async (ctx: QueryCtx) => {
   }
   return await ctx.db.get(userId);
 };
+
+/**
+ * Update user profile (name and username)
+ */
+export const updateProfile = mutation({
+  args: {
+    name: v.optional(v.string()),
+    username: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error("Not authenticated");
+    }
+
+    // Check if username is taken (if username is being updated)
+    if (args.username) {
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_username", (q) => q.eq("username", args.username))
+        .first();
+
+      if (existingUser && existingUser._id !== userId) {
+        throw new Error("Username is already taken");
+      }
+    }
+
+    // Update the user profile
+    await ctx.db.patch(userId, {
+      name: args.name,
+      username: args.username,
+    });
+
+    return { success: true };
+  },
+});

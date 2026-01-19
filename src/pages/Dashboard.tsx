@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Brain, Calendar, GraduationCap, Star, TrendingUp, User, LogOut, Sparkles } from "lucide-react";
+import { BookOpen, Brain, Calendar, GraduationCap, Star, TrendingUp, User, LogOut, Sparkles, UserCog } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProfileDialog } from "@/components/ProfileDialog";
 import ExplainTab from "@/components/tabs/ExplainTab";
 import FlashcardsTab from "@/components/tabs/FlashcardsTab";
 import QuizTab from "@/components/tabs/QuizTab";
@@ -29,6 +30,7 @@ export default function Dashboard() {
   const currentUser = useQuery(api.users.currentUser);
   const { signOut, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   // Redirect to auth page if not authenticated
   useEffect(() => {
@@ -89,7 +91,11 @@ export default function Dashboard() {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
                       <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
-                        {currentUser?.email ? (
+                        {currentUser?.name || currentUser?.username ? (
+                          <span className="text-sm font-semibold">
+                            {(currentUser.name || currentUser.username || "U").charAt(0).toUpperCase()}
+                          </span>
+                        ) : currentUser?.email ? (
                           <span className="text-sm font-semibold">
                             {currentUser.email.charAt(0).toUpperCase()}
                           </span>
@@ -105,7 +111,11 @@ export default function Dashboard() {
                     <div className="flex flex-col space-y-2 p-2">
                       <div className="flex items-center gap-2">
                         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                          {currentUser?.email ? (
+                          {currentUser?.name || currentUser?.username ? (
+                            <span className="text-lg font-bold text-primary">
+                              {(currentUser.name || currentUser.username || "U").charAt(0).toUpperCase()}
+                            </span>
+                          ) : currentUser?.email ? (
                             <span className="text-lg font-bold text-primary">
                               {currentUser.email.charAt(0).toUpperCase()}
                             </span>
@@ -115,16 +125,23 @@ export default function Dashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold leading-none mb-1">
-                            {currentUser?.email ? "Account" : "Guest User"}
+                            {currentUser?.name || (currentUser?.email ? "Account" : "Guest User")}
                           </p>
                           <p className="text-xs leading-none text-muted-foreground truncate">
-                            {currentUser?.email || "Continue as guest"}
+                            {currentUser?.username ? `@${currentUser.username}` : (currentUser?.email || "Continue as guest")}
                           </p>
                         </div>
                       </div>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setProfileDialogOpen(true)}
+                  >
+                    <UserCog className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer text-red-600 focus:text-red-600"
                     onClick={async () => {
@@ -154,7 +171,7 @@ export default function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-2">
-                Welcome back{currentUser?.email ? ", " + currentUser.email.split("@")[0] : ""}! 👋
+                Welcome back{currentUser?.name ? ", " + currentUser.name : (currentUser?.username ? ", " + currentUser.username : (currentUser?.email ? ", " + currentUser.email.split("@")[0] : ""))}! 👋
               </h2>
               <p className="text-muted-foreground text-lg">
                 Ready to continue your learning journey?
@@ -341,6 +358,14 @@ export default function Dashboard() {
           </Card>
         </motion.div>
       </main>
+
+      {/* Profile Dialog */}
+      <ProfileDialog
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+        currentName={currentUser?.name}
+        currentUsername={currentUser?.username}
+      />
     </div>
   );
 }
