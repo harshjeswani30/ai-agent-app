@@ -10,7 +10,7 @@ import { Loader2, Brain, CheckCircle2, XCircle, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient, QuizResponse } from "@/lib/api";
 import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 export default function QuizTab() {
   const [topic, setTopic] = useState("");
@@ -22,8 +22,8 @@ export default function QuizTab() {
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
 
-  const createSession = useMutation(api.studySessions.create);
-  const saveResult = useMutation(api.quizResults.saveResult);
+  const create = useMutation(api.studySessions.create);
+  const saveResult = useMutation(api.quizzes.saveResult);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -39,7 +39,7 @@ export default function QuizTab() {
 
     setLoading(true);
     try {
-      await createSession({ topic, type: "quiz" });
+      await create({ subject: topic, topic, notes: `Quiz: ${difficulty}` });
       const response = await apiClient.generateQuiz({ topic, difficulty, count: questionCount });
       setResult(response);
       setCurrentQuestion(0);

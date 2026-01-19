@@ -9,7 +9,7 @@ import { Loader2, Lightbulb, CheckCircle2, BookmarkPlus } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient, ExplanationResponse } from "@/lib/api";
 import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 export default function ExplainTab() {
   const [topic, setTopic] = useState("");
@@ -17,7 +17,7 @@ export default function ExplainTab() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ExplanationResponse | null>(null);
 
-  const createSession = useMutation(api.studySessions.create);
+  const create = useMutation(api.studySessions.create);
   const saveContent = useMutation(api.savedContent.save);
 
   const handleExplain = async () => {
@@ -28,7 +28,7 @@ export default function ExplainTab() {
 
     setLoading(true);
     try {
-      const sessionId = await createSession({ topic, type: "explanation" });
+      const sessionId = await create({ subject: topic, topic, notes: `Explanation: ${depth}` });
       const response = await apiClient.explainTopic({ topic, depth });
       setResult(response);
       toast.success("Explanation generated successfully!");

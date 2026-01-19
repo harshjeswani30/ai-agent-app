@@ -55,10 +55,11 @@ export const getUserQuizzes = query({
       .order("desc");
 
     if (args.subject) {
+      const subject = args.subject; // TypeScript needs this
       query = ctx.db
         .query("quizResults")
         .withIndex("by_user_and_subject", (q) =>
-          q.eq("userId", user._id).eq("subject", args.subject)
+          q.eq("userId", user._id).eq("subject", subject)
         )
         .order("desc");
     }
@@ -81,13 +82,14 @@ export const getQuizStats = query({
 
     let query = ctx.db
       .query("quizResults")
-      .withIndex("by_user", (q) => q.eq("userId", user._id));
+      .withIndex("by_user", (q) => q.eq("userId", user._id!));
 
     if (args.subject) {
+      const subject = args.subject; // TypeScript needs this
       query = ctx.db
         .query("quizResults")
         .withIndex("by_user_and_subject", (q) =>
-          q.eq("userId", user._id).eq("subject", args.subject)
+          q.eq("userId", user._id!).eq("subject", subject)
         );
     }
 
@@ -155,3 +157,52 @@ async function updateUserProgress(
     });
   }
 }
+
+// Get average quiz score
+export const getAverageScore = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) {
+      return 0;
+    }
+
+    const results = await ctx.db
+      .query("quizResults")
+      .withIndex("by_user", (q) => q.eq("userId", user._id!))
+      .collect();
+
+    if (results.length === 0) return 0;
+
+    const totalScore = results.reduce((sum, r) => sum + r.score, 0);
+    return Math.round(totalScore / results.length);
+  },
+});
+
+// Save quiz result (for compatibility with new API)
+export const saveResult = mutation({
+  args: {
+    topic: v.string(),
+    totalQuestions: v.number(),
+    correctAnswers: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+
+    const score = (args.correctAnswers / args.totalQuestions) * 100;
+
+    return await ctx.db.insert("quizResults", {
+      userId: user._id!,
+      subject: args.topic,
+      topic: args.topic,
+      totalQuestions: args.totalQuestions,
+      correctAnswers: args.correctAnswers,
+      score,
+      difficulty: "medium",
+      timeSpent: 0,
+    });
+  },
+});

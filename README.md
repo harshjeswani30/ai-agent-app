@@ -1,368 +1,388 @@
-# StudyBuddy AI - AI-Powered Study Assistant
+# Study Buddy AI 🎓
 
-> A full-stack generative AI agent application powered by **Pydantic AI** that helps students master any subject with personalized tutoring, adaptive quizzes, and intelligent study planning.
+> An intelligent, full-stack AI study companion powered by Pydantic AI and Convex
 
-## 🎯 Problem Statement
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![React](https://img.shields.io/badge/React-19-61DAFB.svg)
+![Pydantic AI](https://img.shields.io/badge/Pydantic_AI-0.0.14-green.svg)
+![Convex](https://img.shields.io/badge/Convex-1.30-orange.svg)
 
-Students struggle to:
-- Get instant, personalized explanations for complex topics
-- Generate practice questions tailored to their level
-- Track study progress across multiple subjects
-- Stay motivated with measurable goals
+**Live Demo**: [Your deployment URL]  
+**Video Demo**: [Your Loom video URL]  
+**GitHub**: [Your GitHub repo URL]
 
-## 💡 Solution
+---
 
-**StudyBuddy AI** provides an intelligent study companion that:
-- Offers real-time AI tutoring with contextual understanding
-- Generates adaptive quizzes with detailed explanations
-- Tracks study sessions and progress with analytics
-- Adapts difficulty to beginner, intermediate, or advanced levels
+## 📖 Overview
+
+**Study Buddy AI** is a comprehensive full-stack generative AI agent application that transforms how students learn. Built with **Pydantic AI**, it leverages specialized AI agents to provide personalized study assistance.
+
+### The Problem
+
+Students struggle with:
+- Getting instant, clear explanations for complex topics
+- Creating effective study materials (flashcards, quizzes)
+- Managing study time efficiently
+- Tracking their learning progress
+
+### The Solution
+
+Study Buddy AI provides:
+- 🧠 **AI Explanations** - Adaptive explanations with key points and examples
+- 📚 **Smart Flashcards** - Auto-generated flashcards for any topic
+- 🎯 **Interactive Quizzes** - AI-generated quizzes with instant feedback
+- 📅 **Study Schedules** - Personalized study plans optimized for your goals
+- 📊 **Progress Tracking** - Monitor sessions, study time, and quiz performance
+
+---
+
+## ✨ Features
+
+### 1. AI-Powered Explanations
+- Enter any topic and get comprehensive explanations
+- Choose depth: Basic, Intermediate, or Advanced
+- Receive structured responses with:
+  - Detailed explanation
+  - Key takeaway points
+  - Real-world examples
+- Save explanations for later review
+
+### 2. Smart Flashcard Generation
+- Generate 1-20 flashcards on any topic
+- Interactive flip animation
+- Navigate between cards easily
+- Save entire flashcard decks
+
+### 3. Interactive Quizzes
+- Choose difficulty level (Easy, Medium, Hard)
+- Multiple-choice questions with 4 options
+- Instant feedback with detailed explanations
+- Track your scores over time
+
+### 4. Study Schedule Planner
+- Plan for multiple topics simultaneously
+- Set hours per day and total days
+- Get day-by-day breakdown with focus areas
+- Receive personalized study tips
+
+### 5. Save & Track Progress
+- Save your favorite content
+- Track total study sessions
+- Monitor hours studied
+- View average quiz scores
 
 ---
 
 ## 🏗️ Tech Stack
 
 ### Frontend
-- **React 19** + **TypeScript** (Vite 7.2)
-- **React Router v7** (all imports from `react-router`)
-- **Tailwind CSS v4** (modern oklch colors)
-- **Shadcn UI** (50+ components)
-- **Framer Motion** (animations)
-- **Convex React Client** (real-time data)
-- **Lucide Icons**
+- **React 19** with TypeScript
+- **Vite** for fast builds
+- **Tailwind CSS** + **Shadcn UI** for modern design
+- **Framer Motion** for smooth animations
+- **React Router** for navigation
 
 ### Backend
-- **Pydantic AI v0.0.14** ⭐ (AI agent framework)
-- **FastAPI** (Python API)
-- **OpenRouter** (free AI models)
-- **Convex** (serverless database & auth)
+- **Pydantic AI** (Python) - AI agent framework
+- **FastAPI** - High-performance Python web framework
+- **Convex** - Real-time serverless database
+- **OpenRouter** - AI model gateway (free Gemini 2.0 Flash)
 
-Package Manager: **pnpm**
-
-All relevant files live in the `src` directory.
-
----
-
-## 🤖 Pydantic AI Agents
-
-This project uses **Pydantic AI** for intelligent agent orchestration.
-
-### Study Agent (`backend/agents/study_agent.py`)
-Expert AI tutor providing explanations and study guidance.
-
-**Tools:**
-- `break_down_concept` - Deconstructs complex topics into parts
-- `generate_examples` - Creates practice problems
-- `suggest_study_techniques` - Recommends learning methods
-- `check_understanding` - Generates comprehension questions
-
-### Quiz Agent (`backend/agents/quiz_agent.py`)
-Generates adaptive quizzes with multiple choice questions.
-
-**Tools:**
-- `create_question` - Formats quiz questions with shuffled options
-- `validate_quiz` - Ensures quality standards
-- `suggest_topics` - Recommends related subjects
+### Deployment
+- Frontend: Vercel / Netlify
+- Python Backend: Railway / Render
+- Database: Convex (automatic deployment)
 
 ---
 
-## 📦 Installation & Setup
+## 🤖 Pydantic AI Agent Architecture
+
+The application uses **4 specialized Pydantic AI agents**:
+
+### 1. StudyAgent (`study_agent.py`)
+Generates comprehensive topic explanations with adaptive depth levels. Returns structured output with explanation, key points, and examples.
+
+### 2. FlashcardAgent (`flashcard_agent.py`)
+Creates Q&A flashcards that test understanding over memorization. Validates JSON output for consistency.
+
+### 3. QuizAgent (`quiz_agent.py`)
+Generates multiple-choice quizzes with 4 options each. Includes explanations for correct answers and supports multiple difficulty levels.
+
+### 4. ScheduleAgent (`schedule_agent.py`)
+Creates personalized study schedules optimized for available time and topics. Provides study tips and distributes workload evenly.
+
+Each agent:
+- Uses OpenAI-compatible API via OpenRouter
+- Implements structured output validation
+- Has error handling and fallbacks
+- Provides consistent, reliable responses
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ and pnpm
-- Python 3.10+
-- OpenRouter API key (free at https://openrouter.ai)
+- **Node.js** 18+ and pnpm
+- **Python** 3.10+
+- **Convex** account (free at convex.dev)
+- **OpenRouter** API key (free at openrouter.ai)
 
-### 1. Frontend Setup
+### Installation
+
+1. **Clone the repository**
 ```bash
-# Install dependencies
-pnpm install
-
-# Start Convex development server
-npx convex dev
-
-# Start frontend (in another terminal)
-pnpm dev
+git clone <your-repo-url>
+cd study-buddy-ai
 ```
 
-Frontend runs on `http://localhost:5173`
-
-### 2. Backend Setup
+2. **Install frontend dependencies**
 ```bash
-cd backend
+pnpm install
+```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+3. **Install Python dependencies**
+```bash
+cd python-backend
 pip install -r requirements.txt
+cd ..
+```
 
-# Configure environment
-cp .env.example .env
-# Add your OPENROUTER_API_KEY to .env
+4. **Set up Convex**
+```bash
+npx convex dev
+```
+Follow the prompts to create/connect a Convex project.
 
-# Start backend
+5. **Configure environment variables**
+
+Create `.env.local` in the root:
+```bash
+VITE_CONVEX_URL=<your-convex-deployment-url>
+VITE_PYTHON_API_URL=http://localhost:8000
+```
+
+Create `python-backend/.env`:
+```bash
+OPENROUTER_API_KEY=<your-openrouter-api-key>
+PORT=8000
+```
+
+Get a free OpenRouter API key at: https://openrouter.ai/keys
+
+---
+
+## 🏃 Running the Application
+
+### Quick Start (Recommended)
+
+**Linux/Mac:**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+**Windows:**
+```bash
+start.bat
+```
+
+### Manual Start
+
+**Terminal 1 - Python Backend:**
+```bash
+cd python-backend
 python main.py
 ```
 
-Backend runs on `http://localhost:8000`
+**Terminal 2 - Convex Dev Server:**
+```bash
+npx convex dev
+```
 
-### 3. Get API Keys
+**Terminal 3 - Frontend:**
+```bash
+pnpm dev
+```
 
-#### OpenRouter (Required for AI)
-1. Visit https://openrouter.ai
-2. Sign up (free)
-3. Go to Settings → API Keys
-4. Generate key
-5. Add to `backend/.env`:
-   ```
-   OPENROUTER_API_KEY=your_key_here
-   ```
-
-**Free models available:**
-- `meta-llama/llama-3.2-3b-instruct:free`
-- `microsoft/phi-3-mini-128k-instruct:free`
-- `google/gemma-2-9b-it:free`
+Open http://localhost:5173 in your browser.
 
 ---
 
-## Environment Variables
-
-### Frontend (`.env.local`)
-- `VITE_CONVEX_URL` - Convex deployment URL (auto-configured)
-
-### Backend (`backend/.env`)
-- `OPENROUTER_API_KEY` - OpenRouter API key (required)
-- `AI_MODEL` - Model to use (default: llama-3.2-3b-instruct:free)
-- `CORS_ORIGINS` - Allowed origins (default: http://localhost:5173)
-
-### Convex
-- `JWKS`, `JWT_PRIVATE_KEY`, `SITE_URL` - Auth keys (auto-configured)
-
-
-# Using Authentication (Important!)
-
-You must follow these conventions when using authentication.
-
-## Auth is already set up.
-
-All convex authentication functions are already set up. The auth currently uses email OTP and anonymous users, but can support more.
-
-The email OTP configuration is defined in `src/convex/auth/emailOtp.ts`. DO NOT MODIFY THIS FILE.
-
-Also, DO NOT MODIFY THESE AUTH FILES: `src/convex/auth.config.ts` and `src/convex/auth.ts`.
-
-## Using Convex Auth on the backend
-
-On the `src/convex/users.ts` file, you can use the `getCurrentUser` function to get the current user's data.
-
-## Using Convex Auth on the frontend
-
-The `/auth` page is already set up to use auth. Navigate to `/auth` for all log in / sign up sequences.
-
-You MUST use this hook to get user data. Never do this yourself without the hook:
-```typescript
-import { useAuth } from "@/hooks/use-auth";
-
-const { isLoading, isAuthenticated, user, signIn, signOut } = useAuth();
-```
-
-## Protected Routes
-
-When protecting a page, use the auth hooks to check for authentication and redirect to /auth.
-
-## Auth Page
-
-The auth page is defined in `src/pages/Auth.tsx`. Redirect authenticated pages and sign in / sign up to /auth.
-
-## Authorization
-
-You can perform authorization checks on the frontend and backend.
-
-On the frontend, you can use the `useAuth` hook to get the current user's data and authentication state.
-
-You should also be protecting queries, mutations, and actions at the base level, checking for authorization securely.
-
-## Adding a redirect after auth
-
-In `src/main.tsx`, you must add a redirect after auth URL to redirect to the correct dashboard/profile/page that should be created after authentication.
-
-# Frontend Conventions
-
-You will be using the Vite frontend with React 19, Tailwind v4, and Shadcn UI.
-
-Generally, pages should be in the `src/pages` folder, and components should be in the `src/components` folder.
-
-Shadcn primitives are located in the `src/components/ui` folder and should be used by default.
-
-## Page routing
-
-Your page component should go under the `src/pages` folder.
-
-When adding a page, update the react router configuration in `src/main.tsx` to include the new route you just added.
-
-## Shad CN conventions
-
-Follow these conventions when using Shad CN components, which you should use by default.
-- Remember to use "cursor-pointer" to make the element clickable
-- For title text, use the "tracking-tight font-bold" class to make the text more readable
-- Always make apps MOBILE RESPONSIVE. This is important
-- AVOID NESTED CARDS. Try and not to nest cards, borders, components, etc. Nested cards add clutter and make the app look messy.
-- AVOID SHADOWS. Avoid adding any shadows to components. stick with a thin border without the shadow.
-- Avoid skeletons; instead, use the loader2 component to show a spinning loading state when loading data.
-
-
-## Landing Pages
-
-You must always create good-looking designer-level styles to your application. 
-- Make it well animated and fit a certain "theme", ie neo brutalist, retro, neumorphism, glass morphism, etc
-
-Use known images and emojis from online.
-
-If the user is logged in already, show the get started button to say "Dashboard" or "Profile" instead to take them there.
-
-## Responsiveness and formatting
-
-Make sure pages are wrapped in a container to prevent the width stretching out on wide screens. Always make sure they are centered aligned and not off-center.
-
-Always make sure that your designs are mobile responsive. Verify the formatting to ensure it has correct max and min widths as well as mobile responsiveness.
-
-- Always create sidebars for protected dashboard pages and navigate between pages
-- Always create navbars for landing pages
-- On these bars, the created logo should be clickable and redirect to the index page
-
-## Animating with Framer Motion
-
-You must add animations to components using Framer Motion. It is already installed and configured in the project.
-
-To use it, import the `motion` component from `framer-motion` and use it to wrap the component you want to animate.
-
-
-### Other Items to animate
-- Fade in and Fade Out
-- Slide in and Slide Out animations
-- Rendering animations
-- Button clicks and UI elements
-
-Animate for all components, including on landing page and app pages.
-
-## Three JS Graphics
-
-Your app comes with three js by default. You can use it to create 3D graphics for landing pages, games, etc.
-
-
-## Colors
-
-You can override colors in: `src/index.css`
-
-This uses the oklch color format for tailwind v4.
-
-Always use these color variable names.
-
-Make sure all ui components are set up to be mobile responsive and compatible with both light and dark mode.
-
-Set theme using `dark` or `light` variables at the parent className.
-
-## Styling and Theming
-
-When changing the theme, always change the underlying theme of the shad cn components app-wide under `src/components/ui` and the colors in the index.css file.
-
-Avoid hardcoding in colors unless necessary for a use case, and properly implement themes through the underlying shad cn ui components.
-
-When styling, ensure buttons and clickable items have pointer-click on them (don't by default).
-
-Always follow a set theme style and ensure it is tuned to the user's liking.
-
-## Toasts
-
-You should always use toasts to display results to the user, such as confirmations, results, errors, etc.
-
-Use the shad cn Sonner component as the toaster. For example:
+## 📁 Project Structure
 
 ```
-import { toast } from "sonner"
-
-import { Button } from "@/components/ui/button"
-export function SonnerDemo() {
-  return (
-    <Button
-      variant="outline"
-      onClick={() =>
-        toast("Event has been created", {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
-        })
-      }
-    >
-      Show Toast
-    </Button>
-  )
-}
+study-buddy-ai/
+├── src/                          # React frontend
+│   ├── components/
+│   │   ├── tabs/                 # Feature tabs (Explain, Quiz, etc.)
+│   │   └── ui/                   # Shadcn UI components
+│   ├── lib/
+│   │   └── api.ts               # Python backend API client
+│   ├── pages/
+│   │   ├── Landing.tsx          # Landing page
+│   │   └── Dashboard.tsx        # Main dashboard
+│   └── index.css                # Modern blue theme
+│
+├── convex/                       # Convex backend
+│   ├── schema.ts                # Database schema
+│   ├── studySessions.ts         # Session tracking
+│   ├── savedContent.ts          # Content management
+│   ├── quizzes.ts              # Quiz functions
+│   └── http.ts                  # Auth routes
+│
+├── python-backend/               # Python AI backend
+│   ├── agents/                   # Pydantic AI agents
+│   │   ├── study_agent.py       # Explanation generation
+│   │   ├── flashcard_agent.py   # Flashcard creation
+│   │   ├── quiz_agent.py        # Quiz generation
+│   │   └── schedule_agent.py    # Schedule planning
+│   ├── main.py                  # FastAPI application
+│   └── requirements.txt
+│
+├── PROJECT_README.md             # Detailed documentation
+├── DEPLOYMENT.md                 # Deployment guide
+├── SUBMISSION.md                 # Submission checklist
+├── TESTING_CHECKLIST.md          # Testing guide
+├── start.sh / start.bat          # Startup scripts
+└── README.md                     # This file
 ```
 
-Remember to import { toast } from "sonner". Usage: `toast("Event has been created.")`
+---
 
-## Dialogs
+## 🎨 Design
 
-Always ensure your larger dialogs have a scroll in its content to ensure that its content fits the screen size. Make sure that the content is not cut off from the screen.
+The application features a **modern blue theme** with:
+- Professional color palette (oklch color space)
+- Smooth animations via Framer Motion
+- Glassmorphism effects (backdrop blur)
+- Fully responsive (mobile & desktop)
+- Proper loading states and error handling
+- Intuitive navigation and user flows
 
-Ideally, instead of using a new page, use a Dialog instead. 
+---
 
-# Using the Convex backend
+## 🌐 Deployment
 
-You will be implementing the convex backend. Follow your knowledge of convex and the documentation to implement the backend.
-
-## The Convex Schema
-
-You must correctly follow the convex schema implementation.
-
-The schema is defined in `src/convex/schema.ts`.
-
-Do not include the `_id` and `_creationTime` fields in your queries (it is included by default for each table).
-Do not index `_creationTime` as it is indexed for you. Never have duplicate indexes.
-
-
-## Convex Actions: Using CRUD operations
-
-When running anything that involves external connections, you must use a convex action with "use node" at the top of the file.
-
-You cannot have queries or mutations in the same file as a "use node" action file. Thus, you must use pre-built queries and mutations in other files.
-
-You can also use the pre-installed internal crud functions for the database:
-
-```ts
-// in convex/users.ts
-import { crud } from "convex-helpers/server/crud";
-import schema from "./schema.ts";
-
-export const { create, read, update, destroy } = crud(schema, "users");
-
-// in some file, in an action:
-const user = await ctx.runQuery(internal.users.read, { id: userId });
-
-await ctx.runMutation(internal.users.update, {
-  id: userId,
-  patch: {
-    status: "inactive",
-  },
-});
+### Deploy Frontend (Vercel)
+```bash
+vercel deploy
 ```
 
+### Deploy Python Backend (Railway)
+1. Connect GitHub repository
+2. Set root directory to `python-backend`
+3. Add environment variables
+4. Deploy
 
-## Common Convex Mistakes To Avoid
+### Deploy Convex
+```bash
+npx convex deploy
+```
 
-When using convex, make sure:
-- Document IDs are referenced as `_id` field, not `id`.
-- Document ID types are referenced as `Id<"TableName">`, not `string`.
-- Document object types are referenced as `Doc<"TableName">`.
-- Keep schemaValidation to false in the schema file.
-- You must correctly type your code so that it passes the type checker.
-- You must handle null / undefined cases of your convex queries for both frontend and backend, or else it will throw an error that your data could be null or undefined.
-- Always use the `@/folder` path, with `@/convex/folder/file.ts` syntax for importing convex files.
-- This includes importing generated files like `@/convex/_generated/server`, `@/convex/_generated/api`
-- Remember to import functions like useQuery, useMutation, useAction, etc. from `convex/react`
-- NEVER have return type validators.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+---
+
+## 🧪 Testing
+
+Run type checks:
+```bash
+npx tsc -b --noEmit
+```
+
+Test Convex functions:
+```bash
+npx convex dev --once
+```
+
+See [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) for comprehensive testing guide.
+
+---
+
+## 📝 Documentation
+
+- [PROJECT_README.md](./PROJECT_README.md) - Comprehensive project documentation
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Step-by-step deployment guide
+- [SUBMISSION.md](./SUBMISSION.md) - Submission requirements checklist
+- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - Complete testing guide
+
+---
+
+## 🔑 API Keys
+
+### Required
+- **OpenRouter API Key**: Free tier available at https://openrouter.ai/
+- **Convex Project**: Free at https://www.convex.dev/
+
+### Optional
+- Convex Auth for user authentication (already configured)
+
+---
+
+## 🤝 Contributing
+
+This is a student project. Feel free to fork and adapt for your own use.
+
+---
+
+## 📜 License
+
+MIT License - See LICENSE file for details
+
+---
+
+## 👨‍💻 Author
+
+**[Your Name]**
+- Email: [your-email]
+- LinkedIn: [your-linkedin]
+- Portfolio: [your-portfolio]
+
+---
+
+## 🙏 Acknowledgments
+
+- **Pydantic AI** for the excellent agent framework
+- **Convex** for the real-time database platform
+- **OpenRouter** for free AI model access
+- **Shadcn UI** for beautiful component library
+- **Vercel** for frontend hosting
+
+---
+
+## 📺 Video Demo
+
+Watch the 1-minute demo: [Loom Video Link]
+
+The video covers:
+- Live feature demonstrations
+- Technical architecture explanation
+- Pydantic AI agent design
+- Full-stack integration
+
+---
+
+## 🐛 Troubleshooting
+
+### Python Backend Won't Start
+- Ensure Python 3.10+ is installed
+- Check all dependencies are installed
+- Verify OpenRouter API key is set
+- Ensure port 8000 is available
+
+### Frontend Build Errors
+- Delete `node_modules` and reinstall
+- Clear Vite cache
+- Check TypeScript errors
+
+### Convex Connection Issues
+- Run `npx convex dev` to ensure logged in
+- Check environment variable is set correctly
+- Verify Convex dashboard shows deployment
+
+For more help, see [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md).
+
+---
+
+**Built with ❤️ using Pydantic AI, React, and Convex**
+

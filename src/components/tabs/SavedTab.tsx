@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { api } from "convex/_generated/api";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star, Trash2, BookOpen, GraduationCap, Calendar, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
-import { Id } from "@/convex/_generated/dataModel";
+import { Id } from "convex/_generated/dataModel";
 
 export default function SavedTab() {
   const [selectedType, setSelectedType] = useState<"all" | "explanation" | "flashcards" | "quiz" | "schedule">("all");

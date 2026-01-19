@@ -8,7 +8,7 @@ import { Loader2, RotateCw, BookmarkPlus, ChevronLeft, ChevronRight } from "luci
 import { toast } from "sonner";
 import { apiClient, FlashcardResponse } from "@/lib/api";
 import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 export default function FlashcardsTab() {
   const [topic, setTopic] = useState("");
@@ -18,7 +18,7 @@ export default function FlashcardsTab() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
-  const createSession = useMutation(api.studySessions.create);
+  const create = useMutation(api.studySessions.create);
   const saveContent = useMutation(api.savedContent.save);
 
   const handleGenerate = async () => {
@@ -35,7 +35,7 @@ export default function FlashcardsTab() {
 
     setLoading(true);
     try {
-      await createSession({ topic, type: "flashcards" });
+      await create({ subject: topic, topic, notes: `Flashcards: ${cardCount}` });
       const response = await apiClient.generateFlashcards({ topic, count: cardCount });
       setResult(response);
       setCurrentIndex(0);

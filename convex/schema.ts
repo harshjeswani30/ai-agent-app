@@ -92,7 +92,18 @@ const schema = defineSchema(
       lastStudyDate: v.number(), // timestamp
     })
       .index("by_user", ["userId"])
-      .index("by_user_and_subject", ["userId", "subject"])
+      .index("by_user_and_subject", ["userId", "subject"]),
+
+    // Saved content (flashcards, explanations, schedules)
+    savedContent: defineTable({
+      userId: v.string(),
+      type: v.union(v.literal("explanation"), v.literal("flashcards"), v.literal("quiz"), v.literal("schedule")),
+      topic: v.string(),
+      content: v.string(), // JSON stringified content
+      isFavorite: v.boolean(),
+    }).index("by_user", ["userId"])
+      .index("by_user_and_type", ["userId", "type"])
+      .index("by_user_and_favorite", ["userId", "isFavorite"])
   },
   {
     schemaValidation: false,

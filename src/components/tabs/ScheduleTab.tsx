@@ -8,7 +8,7 @@ import { Loader2, Calendar, Plus, X, BookmarkPlus, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient, ScheduleResponse } from "@/lib/api";
 import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { api } from "convex/_generated/api";
 
 export default function ScheduleTab() {
   const [topics, setTopics] = useState<string[]>([""]);
@@ -17,7 +17,7 @@ export default function ScheduleTab() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScheduleResponse | null>(null);
 
-  const createSession = useMutation(api.studySessions.create);
+  const create = useMutation(api.studySessions.create);
   const saveContent = useMutation(api.savedContent.save);
 
   const addTopic = () => {
@@ -58,7 +58,7 @@ export default function ScheduleTab() {
 
     setLoading(true);
     try {
-      await createSession({ topic: validTopics.join(", "), type: "schedule" });
+      await create({ subject: validTopics[0], topic: validTopics.join(", "), notes: "Study schedule" });
       const response = await apiClient.createSchedule({
         topics: validTopics,
         hours_per_day: hours,
